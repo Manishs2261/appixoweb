@@ -1,6 +1,7 @@
 from sqlalchemy.orm import Session
 from model.user_model import UserModel
-from schemas.users_schemas import UserCreateSchema
+from schemas.users_schemas import UserCreateSchema, UserUpdateSchema
+from datetime import datetime
 
 def get_all_users(db: Session):
     return db.query(UserModel).all()
@@ -20,3 +21,29 @@ def create_user(db:Session, userCreate:UserCreateSchema ):
     db.commit()
     db.refresh(db_user)
     return db_user
+
+def update_user(db: Session, u_email:str, userUpdate:UserUpdateSchema):
+    db_user = db.query(UserModel).filter(UserModel.u_email == u_email).first()
+    if not db_user:
+        return None
+
+    mapping = {
+        "name": "u_name",
+        "email": "u_email",
+        "mobile": "u_mobile_number",
+        "age": "u_age",
+        "gender": "u_gender"
+    }
+
+    update_data = userUpdate.model_dump(exclude_unset=True,by_alias=True)
+    print("Update data:", update_data)
+    for key, value in update_data.items():
+        setattr(db_user, mapping[key], value)
+
+    db_user.updated_at = datetime.utcnow()
+    db.commit()
+    db.refresh(db_user)
+    print("After commit:", db_user.u_name)
+    return db_user
+
+
