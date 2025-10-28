@@ -1,6 +1,7 @@
 from core.database import Base
 from sqlalchemy import Column, String, Integer, DateTime
 from datetime import datetime
+from sqlalchemy.orm import relationship
 
 class UserModel(Base):
     __tablename__ = 'users'
@@ -13,3 +14,5 @@ class UserModel(Base):
     u_gender = Column(String(10))
     atCreate = Column(DateTime, default=datetime.utcnow)
     atUpdate = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+
+    rooms = relationship("RoomModel",back_populates="user",cascade="all, delete-orphan")
