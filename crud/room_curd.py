@@ -1,13 +1,14 @@
 from sqlalchemy.orm import Session
+from websockets.legacy.server import HTTPResponse
 
 from model.room_model import RoomModel
-from schemas.room_schemas import RoomResponseSchema,RoomCreateSchema
+from schemas.room_schemas import RoomResponseSchema, RoomCreateSchema, RoomUpdateSchema
 
 
-def get_all_room(db: Session):
+def get_all_room_operation(db: Session):
     return db.query(RoomModel).all()
 
-def create_room(db: Session, roomCreate: RoomCreateSchema ):
+def create_room_operation(db: Session, roomCreate: RoomCreateSchema):
     room = RoomModel(
     r_bills=roomCreate.r_bills,
     r_city =roomCreate.r_city,
@@ -48,3 +49,29 @@ def create_room(db: Session, roomCreate: RoomCreateSchema ):
     db.commit()
     db.refresh(room)
     return room
+
+
+def update_room_operation(db: Session, r_id:int, roomUpdate: RoomUpdateSchema):
+    db_room = db.query(RoomModel).filter(RoomModel.r_id == r_id).first()
+    if not db_room:
+         raise HTTPResponse(status_code=404, detail="Room not found")
+
+    update_data = roomUpdate.model_dump(exclude_unset=True)
+    for key, value in update_data.items():
+        setattr(db_room, key, value)
+
+    db.commit()
+    db.refresh(db_room)
+    return db_room
+
+def delete_room_operation(db: Session, r_id:int):
+    db_room = db.query(RoomModel).filter(RoomModel.r_id == r_id).first()
+
+    if not db_room:
+        raise HTTPResponse(status_code=404, detail="Room not found")
+
+    db.delete(db_room)
+    db.commit()
+    return True
+
+
