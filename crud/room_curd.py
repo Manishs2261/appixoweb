@@ -74,4 +74,33 @@ def delete_room_operation(db: Session, r_id:int):
     db.commit()
     return True
 
+def search_room_operation(db: Session,  home_name: str = None,
+    city: str = None,
+    state: str = None,
+    address: str = None,
+    flat_type: str = None,
+    gender_type: str = None,
+    min_price: int = None,
+    max_price: int = None):
+    query = db.query(RoomModel).filter(RoomModel.r_isDelete == False)
+
+    if home_name:
+        query = query.filter(RoomModel.r_home_name.ilike(f"%{home_name}%"))
+    if city:
+        query = query.filter(RoomModel.r_city.ilike(f"%{city}%"))
+    if state:
+        query = query.filter(RoomModel.r_state.ilike(f"%{state}%"))
+    if address:
+        query = query.filter(RoomModel.r_home_address.ilike(f"%{address}%"))
+    if flat_type:
+        query = query.filter(RoomModel.r_flat_type.ilike(f"%{flat_type}%"))
+    if gender_type:
+        query = query.filter(RoomModel.r_gender_type.ilike(f"%{gender_type}%"))
+    if min_price:
+        query = query.filter(RoomModel.r_single_person >= min_price)
+    if max_price:
+        query = query.filter(RoomModel.r_single_person <= max_price)
+
+    return query.all()
+
 
