@@ -3,13 +3,13 @@ from model.user_model import UserModel
 from schemas.users_schemas import UserCreateSchema, UserUpdateSchema
 from datetime import datetime
 
-def get_all_users(db: Session):
+def get_all_users_operation(db: Session):
     return db.query(UserModel).all()
 
-def get_user_by_email(db: Session,u_email:str):
+def get_user_by_email_operation(db: Session, u_email:str):
     return  db.query(UserModel).filter(UserModel.u_email == u_email).first()
 
-def create_user(db:Session, userCreate:UserCreateSchema ):
+def create_user_operation(db:Session, userCreate:UserCreateSchema):
     db_user = UserModel(
         u_name=userCreate.u_name,
         u_email=userCreate.u_email,
@@ -22,7 +22,7 @@ def create_user(db:Session, userCreate:UserCreateSchema ):
     db.refresh(db_user)
     return db_user
 
-def update_user(db: Session, u_email:str, userUpdate:UserUpdateSchema):
+def update_user_operation(db: Session, u_email:str, userUpdate:UserUpdateSchema):
     db_user = db.query(UserModel).filter(UserModel.u_email == u_email).first()
     if not db_user:
         return None
