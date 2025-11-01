@@ -16,3 +16,4 @@ class UserModel(Base):
     atUpdate = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
 
     rooms = relationship("RoomModel",back_populates="user",cascade="all, delete-orphan")
+    foods = relationship("FoodModel", back_populates="user", cascade="all, delete-orphan")
