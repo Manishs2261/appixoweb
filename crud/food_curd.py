@@ -5,8 +5,10 @@ from model.food_model import FoodModel
 from schemas.food_schemas import FoodCreateSchema, FoodUpdateSchema
 from datetime import datetime
 
-def get_all_food_operation(db:Session):
+
+def get_all_food_operation(db: Session):
     return db.query(FoodModel).all()
+
 
 def create_food_operation(db: Session, foodCreate: FoodCreateSchema):
     try:
@@ -54,7 +56,8 @@ def create_food_operation(db: Session, foodCreate: FoodCreateSchema):
         db.rollback()
         raise HTTPException(status_code=400, detail=str(e))
 
-def update_food_operation(db:Session, f_id:int, foodUpdate: FoodUpdateSchema):
+
+def update_food_operation(db: Session, f_id: int, foodUpdate: FoodUpdateSchema):
     db_food = db.query(FoodModel).filter(FoodModel.f_id == f_id).first()
     if not db_food:
         raise HTTPException(status_code=404, detail="Food not found")
@@ -65,4 +68,40 @@ def update_food_operation(db:Session, f_id:int, foodUpdate: FoodUpdateSchema):
 
     db.commit()
     db.refresh(db_food)
-    return  db_food
+    return db_food
+
+
+def search_food_operation(db: Session,
+                          name: str = None,
+                          type: str = None,
+                          address: str = None,
+                          city: str = None,
+                          state: str = None,
+                          ):
+    query = db.query(FoodModel)
+
+    if name:
+        query = query.filter(FoodModel.f_name.ilike(f"%{name}%"))
+    if type:
+        query = query.filter(FoodModel.f_type.ilike(f"%{type}%"))
+    if address:
+        query = query.filter(FoodModel.f_address.ilike(f"%{address}%"))
+    if city:
+        query = query.filter(FoodModel.f_address.ilike(f"%{city}%"))
+    if state:
+        query = query.filter(FoodModel.f_address.ilike(f"%{state}%"))
+
+    return  query.all()
+
+def delete_food_operation(db:Session, f_id: int):
+    db_food = db.query(FoodModel).filter(FoodModel.f_id == f_id).first()
+
+    if not db_food:
+         raise HTTPException(status_code=404, detail="Food not found")
+
+    db.delete(db_food)
+    db.commit()
+    return db_food
+
+
+
